@@ -1,0 +1,436 @@
+<style>
++body{background-color:black; color:white;}
+p.title{font-size: 25px; color:white}
+table.monsterLineUp{border: 1px white solid; padding: 20px; border-collapse: separate; border-spacing: 10px}
+table.actionList{border: 3px white dashed; padding: 10px}
+table.inventory{border: 3px white solid; padding 1px}
+.row {display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 10px}
+table.roompuzzle{border: 3px white dotted; padding 10px}</style>
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Assignment 13</title>
+    <link rel="stylesheet" href="./style.css">
+
+  </head>
+    
+  <body>
+  <body>
+  <title>Monster hall</title>
+  <p class="title">Monster hall</p>
+  <table><tr><h1>Timer</h1><tr>
+    <tr><p id="timers"></p></tr>
+    <tr><p id="lap"></p></tr>
+    <tr><td><button id=timerStart>start</button></td><td><button id=timerStop>stop</button></td><td><button id=timerLap>lap</button></td></tr>
+  </table>
+  <p id="roomCounter"></p>
+  <p id="healthCounter"></p>
+  <table class="monsterLineUp">
+    <tr><td id="monster1"></td><td id="monster2"></td><td id="monster3"></td></tr>
+    <tr><td id="monster1Health"></td><td id="monster2Health"></td><td id="monster3Health"></td></tr>
+  </table>
+  <table class="actionList">
+    <tr><td><button type="button" id="ATKMON1">Attack monster 1</button></td><td><button type="button" id="ATKMON2">Attack monster 2</button></td><td><button type="button" id="ATKMON3">Attack monster 3</button></td></tr>
+  </table>
+  <table class="inventory">
+    <tr><td><button id="INV1"></button></td><td><button id="INV2"></button></td><td><button id="INV3"></button></td><td><button id="INV4"></button></td></tr>
+    <tr><td><button id="INV5"></button></td><td><button id="INV6"></button></td><td><button id="INV7"></button></td><td><button id="INV8"></button></td></tr>
+    <tr><td><button id="INV9"></button></td><td><button id="INV10"></button></td><td><button id="INV11"></button></td><td><button id="INV12"></button></td></tr>
+    <tr><td><button id="INV13"></button></td><td><button id="INV14"></button></td><td><button id="INV15"></button></td><td><button id="INV16"></button></td></tr>
+    <table class = "roompuzzle"><tr><td>
+      <section class="card">
+      <h2>Room Puzzle</h2>
+        <button id="puzzle start">start</button>
+        <p id="timer"><p>
+      <p id="question"></p>
+
+      <form id="quizForm" autocomplete="off">
+        <label for="answer">answer:</label>
+        <input id="answer" type="text" required placeholder="e.g., 3" />
+        <button type="submit">Submit</button>
+      </form>
+
+      <p id="response"></p>
+    </section>
+      </td></tr></table>
+</body>
+    <script  src="./script.js"></script>
+
+  </body>
+  
+</html>
+<script>
+  let health = 50;
+let stopped = false;
+let started = false;
+let time = 5;
+let timer = null;
+let lapTimer = 0;
+let lap = [];
+let lapNumber = 0;
+let next = true;
+let difficulty = 5;
+const maxHealth = 50;
+let roomNumber = 0;
+let TotalmonsterHealth = 15;
+let monster1Health = 5;
+let monster2Health = 5;
+let monster3Health = 5;
+let monster1Attack = 1;
+let monster2Attack = 1;
+let monster3Attack = 1;
+let inventory = [["nothing", "nothing", "nothing", "nothing"], ["nothing", "nothing", "nothing", "nothing"], ["nothing", "nothing", "nothing", "nothing"], ["nothing", "nothing", "nothing", "nothing"]];
+let monsterGenerator = 0;
+let monster1 = 1;
+let monster2 = 1;
+let monster3 = 1;
+let monster1Name = "slime";
+let monster2Name = "slime";
+let monster3Name = "slime";
+document.getElementById("roomCounter").innerHTML = "Room: " + roomNumber;
+document.getElementById("healthCounter").innerHTML = health + "/" + maxHealth;
+document.getElementById("INV1").innerHTML = inventory[0][0];
+document.getElementById("INV2").innerHTML = inventory[0][1];
+document.getElementById("INV3").innerHTML = inventory[0][2];
+document.getElementById("INV4").innerHTML = inventory[0][3];
+document.getElementById("INV5").innerHTML = inventory[1][0];
+document.getElementById("INV6").innerHTML = inventory[1][1];
+document.getElementById("INV7").innerHTML = inventory[1][2];
+document.getElementById("INV8").innerHTML = inventory[1][3];
+document.getElementById("INV9").innerHTML = inventory[2][0];
+document.getElementById("INV10").innerHTML = inventory[2][1];
+document.getElementById("INV11").innerHTML = inventory[2][2];
+document.getElementById("INV12").innerHTML = inventory[2][3];
+document.getElementById("INV13").innerHTML = inventory[3][0];
+document.getElementById("INV14").innerHTML = inventory[3][1];
+document.getElementById("INV15").innerHTML = inventory[3][2];
+document.getElementById("INV16").innerHTML = inventory[3][3];
+document.getElementById("monster1").innerHTML = monster1Name;
+document.getElementById("monster2").innerHTML = monster2Name;
+document.getElementById("monster3").innerHTML = monster3Name;
+document.getElementById("monster1Health").innerHTML = "HP: " + monster1Health;
+document.getElementById("monster2Health").innerHTML = "HP: " + monster2Health;
+document.getElementById("monster3Health").innerHTML = "HP: " + monster3Health;
+document.getElementById("ATKMON1").addEventListener("click", () => ATK(1, Math.ceil(Math.random()*5)));
+document.getElementById("ATKMON2").addEventListener("click", () => ATK(2, Math.ceil(Math.random()*5)));
+document.getElementById("ATKMON3").addEventListener("click", () => ATK(3, Math.ceil(Math.random()*5)));
+document.getElementById("INV1").addEventListener("click", () => Inventory(0, 0));
+document.getElementById("INV2").addEventListener("click", () => Inventory(0, 1));
+document.getElementById("INV3").addEventListener("click", () => Inventory(0, 2));
+document.getElementById("INV4").addEventListener("click", () => Inventory(0, 3));
+document.getElementById("INV5").addEventListener("click", () => Inventory(1, 0));
+document.getElementById("INV6").addEventListener("click", () => Inventory(1, 1));
+document.getElementById("INV7").addEventListener("click", () => Inventory(1, 2));
+document.getElementById("INV8").addEventListener("click", () => Inventory(1, 3));
+document.getElementById("INV9").addEventListener("click", () => Inventory(2, 0));
+document.getElementById("INV10").addEventListener("click", () => Inventory(2, 1));
+document.getElementById("INV11").addEventListener("click", () => Inventory(2, 2));
+document.getElementById("INV12").addEventListener("click", () => Inventory(2, 3));
+document.getElementById("INV13").addEventListener("click", () => Inventory(3, 0));
+document.getElementById("INV14").addEventListener("click", () => Inventory(3, 1));
+document.getElementById("INV15").addEventListener("click", () => Inventory(3, 2));
+document.getElementById("INV16").addEventListener("click", () => Inventory(3, 3));
+document.getElementById("puzzle start").addEventListener("click", () => quiz());
+document.getElementById("timerStart").addEventListener("click", () => timerStart());
+document.getElementById("timerStop").addEventListener("click", () => timerStop());
+document.getElementById("timerLap").addEventListener("click", () => timerlap());
+function endRoom(){
+  monster1 = Math.random()*4;
+  monster2 = Math.random()*4;
+  monster3 = Math.random()*4;
+  if (monster1 < 1){
+    monster1Name = "nothing";
+    monster1Attack = 0;
+  }else if(monster1 < 2){
+    monster1Name = "slime";
+    monster1Health = 5;
+    monster1Attack = 1;
+  }else if(monster1 < 3){
+    monster1Name = "skeleton";
+    monster1Health = 7;
+    monster1Attack = 2;
+  }else{
+    monster1Name = "zombie";
+    monster1Health = 10;
+    monster1Attack = 3;
+  }
+  if (monster2 < 1){
+    monster2Name = "nothing";
+    monster2Attack = 0;
+  }else if(monster2 < 2){
+    monster2Name = "slime";
+    monster2Health = 5;
+    monster2Attack = 1;
+  }else if(monster2 < 3){
+    monster2Name = "skeleton";
+    monster2Health = 7;
+    monster2Attack = 2;
+  }else{
+    monster2Name = "zombie";
+    monster2Health = 10;
+    monster2Attack = 3;
+  }
+  if (monster3 < 1){
+    monster3Name = "nothing";
+    monster3Attack = 0;
+  }else if(monster3 < 2){
+    monster3Name = "slime";
+    monster3Health = 5;
+    monster3Attack = 1;
+  }else if(monster3 < 3){
+    monster3Name = "skeleton";
+    monster3Health = 7;
+    monster3Attack = 2;
+  }else{
+    monster3Name = "zombie";
+    monster3Health = 10;
+    monster3Attack = 3;
+  }
+  roomNumber = roomNumber + 1;
+  TotalmonsterHealth = monster1Health + monster2Health + monster3Health;
+  let found = false;
+  for (let i = 0; i < 4; i++){
+    for (let n = 0; n < 4; n++){
+      if (!found){
+        if (inventory[i][n] === "nothing"){
+          let item = Math.random()*100;
+          if (item < 50){
+            inventory[i][n] = "health potion"
+          }else if(item < 75){
+            inventory[i][n] = "defense potion"
+          }else{
+            inventory[i][n] = "mysterious liquid"
+          }
+          found = true;
+        }else if(i === 3 && n === 3){
+            found = true;
+        }
+      }
+    }
+  }
+  update()
+}
+function ATK(monster, damage){
+  if (monster == 1){
+    if (monster1Health - damage <= 0){
+      damage = monster1Health;
+      monster1Health = 0;
+    }else{
+      monster1Health = monster1Health - damage;
+    }
+    if (monster1Health <= 0){
+      monster1Attack = 0;
+    }
+  }else if (monster == 2){
+    if (monster2Health - damage <= 0){
+      damage = monster2Health;
+      monster2Health = 0;
+    }else{
+      monster2Health = monster2Health - damage;
+    }
+    if (monster2Health <= 0){
+      monster2Attack = 0;
+    }
+  }else if (monster == 3){
+    if (monster3Health - damage <= 0){
+      damage = monster3Health;
+      monster3Health = 0;
+    }else{
+      monster3Health = monster3Health - damage;
+    }
+    if (monster3Health <= 0){
+      monster3Attack = 0;
+    }
+  }
+  TotalmonsterHealth -= damage;
+  endTurn(monster1Attack, monster2Attack, monster3Attack);
+  
+}
+function MonATK(monsterATK){
+  health = health - monsterATK;
+}
+function endTurn(monster1, monster2, monster3){
+  let attacks = [monster1, monster2, monster3];
+  for (let i = 0; i < 3; i++){
+    MonATK(Math.ceil(Math.random()*attacks[i]));
+  }
+  if (health <= 0){
+    died();
+  }else if (TotalmonsterHealth <= 0){
+    endRoom();
+  }else{
+  update();
+  }
+}
+function Inventory(row, col){
+  ItemUse(inventory[row][col]);
+  inventory[row][col] = "nothing";
+  endTurn(monster1Attack, monster2Attack, monster3Attack);
+}
+function ItemUse(item){
+  if (item == "health potion"){
+    health = health + Math.ceil(Math.random()*20+2);
+  }else if(item == "defense potion"){
+    monster1Attack--;
+    monster2Attack--;
+    monster3Attack--;
+  }else if(item == "mysterious liquid"){
+    let rand = Math.ceil(Math.random()*60);
+    if (rand < 10){
+      health = health - rand;
+    }else if(rand >= 10){
+      health = health + rand - 10;
+    }
+  }
+}
+function died(){
+health = 50;
+roomNumber = 0;
+TotalmonsterHealth = 15;
+monster1Health = 5;
+monster2Health = 5;
+monster3Health = 5;
+monster1Attack = 1;
+monster2Attack = 1;
+monster3Attack = 1;
+inventory = [["nothing", "nothing", "nothing", "nothing"], ["nothing", "nothing", "nothing", "nothing"], ["nothing", "nothing", "nothing", "nothing"], ["nothing", "nothing", "nothing", "nothing"]];
+monsterGenerator = 0;
+monster1 = 1;
+monster2 = 1;
+monster3 = 1;
+monster1Name = "slime";
+monster2Name = "slime";
+monster3Name = "slime";
+  update();
+}
+function update(){
+  document.getElementById("INV1").innerHTML = inventory[0][0];
+document.getElementById("INV2").innerHTML = inventory[0][1];
+document.getElementById("INV3").innerHTML = inventory[0][2];
+document.getElementById("INV4").innerHTML = inventory[0][3];
+document.getElementById("INV5").innerHTML = inventory[1][0];
+document.getElementById("INV6").innerHTML = inventory[1][1];
+document.getElementById("INV7").innerHTML = inventory[1][2];
+document.getElementById("INV8").innerHTML = inventory[1][3];
+document.getElementById("INV9").innerHTML = inventory[2][0];
+document.getElementById("INV10").innerHTML = inventory[2][1];
+document.getElementById("INV11").innerHTML = inventory[2][2];
+document.getElementById("INV12").innerHTML = inventory[2][3];
+document.getElementById("INV13").innerHTML = inventory[3][0];
+document.getElementById("INV14").innerHTML = inventory[3][1];
+document.getElementById("INV15").innerHTML = inventory[3][2];
+document.getElementById("INV16").innerHTML = inventory[3][3];
+  document.getElementById("monster1").innerHTML = monster1Name;
+document.getElementById("monster2").innerHTML = monster2Name;
+document.getElementById("monster3").innerHTML = monster3Name;
+document.getElementById("monster1Health").innerHTML = "HP: " + monster1Health;
+document.getElementById("monster2Health").innerHTML = "HP: " + monster2Health;
+document.getElementById("monster3Health").innerHTML = "HP: " + monster3Health;
+  document.getElementById("healthCounter").innerHTML = health + "/" + maxHealth;
+  document.getElementById("roomCounter").innerHTML = "Room: " + roomNumber;
+}
+function timeUpdate(){
+  time--;
+  document.getElementById("timer").innerHTML = "Timer: " + time;
+  if (time <= 0){
+    clearInterval(timer);
+  }
+}
+function quiz(){
+  time = 10;
+  timer = setInterval(timeUpdate, 1000);
+  question(Math.ceil(Math.random()*difficulty),
+           Math.ceil(Math.random()*difficulty),
+           Math.ceil(Math.random()*3));
+  difficulty++;
+  endTurn(monster1Attack, monster2Attack, monster3Attack);
+}
+function question(fTerm, sTerm, sign) {
+  const form = document.getElementById("quizForm");
+  const response = document.getElementById("response");
+  let answer = 0;
+
+
+  if (sign === 1) {
+    answer = fTerm - sTerm;
+    document.getElementById("question").innerHTML = `${fTerm}-${sTerm}`;
+  } else if (sign === 2) {
+    answer = fTerm + sTerm;
+    document.getElementById("question").innerHTML = `${fTerm}+${sTerm}`;
+  } else if (sign === 3) {
+    answer = fTerm * sTerm;
+    document.getElementById("question").innerHTML = `${fTerm}*${sTerm}`;
+  }
+
+
+  form.removeEventListener("submit", form._quizHandler);
+
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    const val = document.getElementById("answer").value.trim();
+
+
+    if (Number(val) === answer && time > 0) {
+      let placed = false;
+
+
+      for (let i = 0; i < 4 && !placed; i++) {
+        for (let n = 0; n < 4 && !placed; n++) {
+          if (inventory[i][n] === "nothing") {
+            const item = Math.random() * 100;
+            if (item < 50) {
+              inventory[i][n] = "health potion";
+            } else if (item < 75) {
+              inventory[i][n] = "defense potion";
+            } else {
+              inventory[i][n] = "mysterious liquid";
+            }
+            placed = true;
+          }
+        }
+      }
+      update();
+    }
+
+
+    if (time > 0) {
+      question(
+        Math.ceil(Math.random() * difficulty),
+        Math.ceil(Math.random() * difficulty),
+        Math.ceil(Math.random() * 3)
+      );
+    }
+  }
+
+
+  form._quizHandler = handleSubmit;
+  form.addEventListener("submit", form._quizHandler);
+}
+function timeGoing(){
+  if (stopped === false){
+    lapTimer++;
+    document.getElementById("timers").innerHTML = "seconds: " + lapTimer;
+  }
+}
+function timerStart(){
+  stopped = false;
+  if (started === false){
+    started = true;
+    let timeFunction = timeGoing();
+    setInterval(timeGoing, 1000);
+  }
+}
+function timerStop(){
+  stopped = true;
+}
+function timerlap(){
+  lap[lapNumber] = " seconds: " + lapTimer;
+  lapNumber++;
+  lapTimer = 0;
+  document.getElementById("timers").innerHTML = "seconds: " + lapTimer;
+  document.getElementById("lap").innerHTML = "Laps:" + lap;
+}
+</script>
